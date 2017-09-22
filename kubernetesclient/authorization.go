@@ -8,10 +8,13 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
-	caLocation = "/etc/kubernetes/ssl/ca.pem"
+	caLocation         = "/etc/kubernetes/ssl/ca.pem"
+	kubeconfigLocation = "/etc/kubernetes/ssl/kubeconfig"
 )
 
 var (
@@ -34,6 +37,19 @@ func Init() error {
 		return fmt.Errorf("Failed to read CA cert %s: %v", caLocation, err)
 	}
 
+	//starting converting
+	var kubeconfig string
+	kubeconfig = kubeconfigLocation
+
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		panic(err.Error())
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
 	return nil
 }
 

@@ -26,6 +26,27 @@ if [ -n "$ACTION" ]; then
     export CATTLE_SECRET_KEY=$CATTLE_AGENT_SECRET_KEY
 
     TOKEN=$(cat /etc/kubernetes/ssl/key.pem | sha256sum | awk '{print $1}')
+
+    cat > /etc/kubernetes/ssl/kubeconfig << EOF
+apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    api-version: v1
+    certificate-authority: /etc/kubernetes/ssl/ca.pem
+    server: "$KUBERNETES_URL"
+  name: "Default"
+contexts:
+- context:
+    cluster: "Default"
+    user: "Default"
+  name: "Default"
+current-context: "Default"
+users:
+- name: "Default"
+  user:
+    token: "$TOKEN"
+EOF
+
     echo ${TOKEN} | exec "$@"
 fi
-
