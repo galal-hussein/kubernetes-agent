@@ -7,6 +7,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"k8s.io/client-go/kubernetes"
 )
 
 const byNamePath string = "/api/v1/namespaces/%s/%s/%s"
@@ -14,8 +16,9 @@ const byNamePath string = "/api/v1/namespaces/%s/%s/%s"
 func NewClient(apiURL string, debug bool) *Client {
 	client := &Client{
 		baseClient: baseClient{
-			BaseURL: apiURL,
-			debug:   debug,
+			BaseURL:      apiURL,
+			K8sClientSet: GetK8sClientSet(),
+			debug:        debug,
 		},
 	}
 
@@ -30,16 +33,16 @@ func NewClient(apiURL string, debug bool) *Client {
 
 type Client struct {
 	baseClient
-	Pod                   PodOperations
-	Namespace             NamespaceOperations
-	ReplicationController ReplicationControllerOperations
-	Service               ServiceOperations
-	Node                  NodeOperations
+	Pod       PodOperations
+	Namespace NamespaceOperations
+	Service   ServiceOperations
+	Node      NodeOperations
 }
 
 type baseClient struct {
-	BaseURL string
-	debug   bool
+	BaseURL      string
+	K8sClientSet *kubernetes.Clientset
+	debug        bool
 }
 
 func (c *baseClient) doByName(resourceType string, namespace string, name string, responseObject interface{}) error {

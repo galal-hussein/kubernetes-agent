@@ -1,9 +1,10 @@
 package kubernetesevents
 
 import (
-	"gopkg.in/check.v1"
 	"testing"
 	"time"
+
+	"gopkg.in/check.v1"
 
 	"github.com/rancher/go-rancher/v2"
 	"github.com/rancher/kubernetes-model/model"
@@ -109,7 +110,7 @@ func (s *GenerichandlerTestSuite) TestService(c *check.C) {
 					if err != nil {
 						c.Fatal(err)
 					}
-					c.Assert(env["externalId"], check.Equals, "kubernetes://"+kEnv.Metadata.Uid)
+					c.Assert(env["externalId"], check.Equals, "kubernetes://"+string(kEnv.UID))
 					gotCreate = true
 				} else if event.EventType == "service.update" {
 					c.Assert(service.Kind, check.Equals, "kubernetesService")

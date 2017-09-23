@@ -157,9 +157,9 @@ func (h *GenericHandler) add(selectorMap map[string]interface{}, metadata *model
 		if err != nil {
 			return err
 		}
-		env["name"] = namespace.Metadata.Name
-		env["externalId"] = "kubernetes://" + namespace.Metadata.Uid
-		rancherUuid, _ := namespace.Metadata.Labels["io.rancher.uuid"].(string)
+		env["name"] = namespace.Name
+		env["externalId"] = "kubernetes://" + string(namespace.UID)
+		rancherUuid, _ := namespace.Labels["io.rancher.uuid"]
 		env["uuid"] = rancherUuid
 	}
 	serviceEvent.Environment = env

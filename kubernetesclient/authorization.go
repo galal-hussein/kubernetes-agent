@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -36,21 +37,20 @@ func Init() error {
 	if err != nil {
 		return fmt.Errorf("Failed to read CA cert %s: %v", caLocation, err)
 	}
-
-	//starting converting
-	var kubeconfig string
-	kubeconfig = kubeconfigLocation
-
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
 	return nil
+}
+
+func GetK8sClientSet() *kubernetes.Clientset {
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigLocation)
+	if err != nil {
+		panic(err.Error())
+	}
+	K8sClientSet, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+	return K8sClientSet
 }
 
 func GetAuthorizationHeader() string {
