@@ -40,9 +40,12 @@ func Init() error {
 	return nil
 }
 
-func GetK8sClientSet() *kubernetes.Clientset {
+func GetK8sClientSet(apiURL string) *kubernetes.Clientset {
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigLocation)
+	if apiURL != "" {
+		config.Host = apiURL
+	}
 	if err != nil {
 		panic(err.Error())
 	}

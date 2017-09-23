@@ -80,11 +80,9 @@ func launch(c *cli.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	if err = kubernetesclient.Init(); err != nil {
 		log.Fatal(err)
 	}
-
 	kClient := kubernetesclient.NewClient(conf.KubernetesURL, true)
 
 	svcHandler := kubernetesevents.NewServiceHandler(rClient, kClient, conf)
