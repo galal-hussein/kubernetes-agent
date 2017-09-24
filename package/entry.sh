@@ -48,5 +48,5 @@ users:
     token: "$TOKEN"
 EOF
 
-    echo ${TOKEN} | exec "$@"
+    exec "$@"
 fi
