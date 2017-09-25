@@ -40,15 +40,18 @@ func (g *genericHandler) startGenericWatch(resourceName string) chan struct{} {
 		time.Second*0,
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				logrus.Infof("Received event: [ADDED] for %s: Publish event to Rancher", resourceName)
+				key, _ := cache.MetaNamespaceKeyFunc(obj)
+				logrus.Infof("Received event: [ADDED] for %s: %v, publishing event to Rancher", resourceName, key)
 				g.rancherPatch(obj, "ADDED")
 			},
 			DeleteFunc: func(obj interface{}) {
-				logrus.Infof("Received event: [DELETED] for %s: Publish event to Rancher", resourceName)
+				key, _ := cache.MetaNamespaceKeyFunc(obj)
+				logrus.Infof("Received event: [DELETED] for %s: %v, publishing event to Rancher", resourceName, key)
 				g.rancherPatch(obj, "DELETED")
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
-				logrus.Infof("Received event: [MODIFIED] for %s: Publish event to Rancher", resourceName)
+				key, _ := cache.MetaNamespaceKeyFunc(newObj)
+				logrus.Infof("Received event: [MODIFIED] for %s: %v, publishing event to Rancher", resourceName, key)
 				g.rancherPatch(newObj, "MODIFIED")
 			},
 		},
@@ -107,8 +110,8 @@ func (g *genericHandler) getRuntimeObject(resName string) (runtime.Object, rest.
 	case "deployments":
 		return &v1beta1.Deployment{}, g.kClient.K8sClientSet.AppsV1beta1().RESTClient()
 	// replicasets restclient not available in 4.0.0
-	//case "replicasets":
-	//  return &v1beta1.ReplicaSet{}, g.kClient.K8sClientSet.AppsV1beta1Client.RESTClient()
+	case "replicasets":
+		return &extv1beta1.ReplicaSet{}, g.kClient.K8sClientSet.ExtensionsV1beta1().RESTClient()
 	case "jobs":
 		return &batchv1.Job{}, g.kClient.K8sClientSet.BatchV1().RESTClient()
 	case "ingresses":

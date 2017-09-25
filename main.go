@@ -62,7 +62,7 @@ func main() {
 		cli.StringSliceFlag{
 			Name: "watch-kind",
 			Value: &cli.StringSlice{"namespaces", "services", "replicationcontrollers", "pods",
-				"deployments", "ingresses", "jobs", "horizontalpodautoscalers", "persistentvolumes",
+				"deployments", "replicasets", "ingresses", "jobs", "horizontalpodautoscalers", "persistentvolumes",
 				"persistentvolumeclaims", "secrets"},
 			Usage: "Which k8s kinds to watch and report changes to Rancher",
 		},
