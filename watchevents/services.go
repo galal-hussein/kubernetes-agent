@@ -39,21 +39,24 @@ func (s *serviceHandler) startServiceWatch() chan struct{} {
 		time.Second*0,
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				logrus.Infof("Received event: [ADDED] for Service: %v", obj)
+				key, _ := cache.MetaNamespaceKeyFunc(obj)
+				logrus.Infof("Received event: [ADDED] for Service: %s, Handling Add event.", key)
 				err := s.add(obj, "Added")
 				if err != nil {
 					logrus.Errorf("Error Handling event: [ADDED] for Service: %v", err)
 				}
 			},
 			DeleteFunc: func(obj interface{}) {
-				logrus.Infof("Received event: [DELETED] for Service: %v", obj)
+				key, _ := cache.MetaNamespaceKeyFunc(obj)
+				logrus.Infof("Received event: [DELETED] for Service: %s, Handling Delete event.", key)
 				err := s.delete(obj)
 				if err != nil {
 					logrus.Errorf("Error Handling event: [DELETED] for Service: %v", err)
 				}
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
-				logrus.Infof("Received event: [MODIFIED] for Service: %v", newObj)
+				key, _ := cache.MetaNamespaceKeyFunc(newObj)
+				logrus.Infof("Received event: [MODIFIED] for Service: %s, Handling Modified event.", key)
 				err := s.add(newObj, "Modified")
 				if err != nil {
 					logrus.Errorf("Error Handling event: [MODIFIED] for Service: %v", err)
@@ -70,7 +73,6 @@ func (s *serviceHandler) startServiceWatch() chan struct{} {
 
 func (s *serviceHandler) add(svc interface{}, eventType string) error {
 	realSVC := svc.(*v1.Service)
-	logrus.Infof("Handling Adding service event for %v", realSVC)
 	kind := kubernetesServiceKind
 	metadata := realSVC.ObjectMeta
 	selectorMap := realSVC.Spec.Selector
@@ -139,7 +141,6 @@ func (s *serviceHandler) add(svc interface{}, eventType string) error {
 
 func (s *serviceHandler) delete(svc interface{}) error {
 	realSVC := svc.(*v1.Service)
-	logrus.Infof("Handling Deleting service event for %v", realSVC)
 	kind := kubernetesServiceKind
 	metadata := realSVC.ObjectMeta
 

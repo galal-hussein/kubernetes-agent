@@ -34,17 +34,20 @@ func (n *namespaceHandler) startNamespaceWatch() chan struct{} {
 		time.Second*0,
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				logrus.Infof("Skipping event: [ADDED] for namespace: %v", obj)
+				key, _ := cache.MetaNamespaceKeyFunc(obj)
+				logrus.Infof("Skipping event: [ADDED] for namespace: %s", key)
 			},
 			DeleteFunc: func(obj interface{}) {
-				logrus.Infof("Handling event: [DELETED] for namespace: %v", obj)
+				key, _ := cache.MetaNamespaceKeyFunc(obj)
+				logrus.Infof("Received event: [DELETED] for Namespace: %s, Handling Delete event.", key)
 				err := n.delete(obj, "Deleted")
 				if err != nil {
 					logrus.Errorf("Error Handling event: [DELETED] for namespace: %v", err)
 				}
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
-				logrus.Infof("Skipping event: [MODIFIED] for namespace: %v", newObj)
+				key, _ := cache.MetaNamespaceKeyFunc(newObj)
+				logrus.Infof("Skipping event: [MODIFIED] for namespace: %s", key)
 			},
 		},
 	)
