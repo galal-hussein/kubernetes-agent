@@ -8,7 +8,7 @@ import (
 
 	"github.com/rancher/kubernetes-agent/config"
 	"github.com/rancher/kubernetes-agent/healthcheck"
-	"github.com/rancher/kubernetes-agent/hostlabels"
+	"github.com/rancher/kubernetes-agent/hostwatch"
 	"github.com/rancher/kubernetes-agent/kubernetesclient"
 	"github.com/rancher/kubernetes-agent/rancherevents"
 	"github.com/rancher/kubernetes-agent/watchevents"
@@ -87,7 +87,7 @@ func launch(c *cli.Context) {
 	defer nsHandler.Stop()
 
 	go func(rc chan error) {
-		err := rancherevents.ConnectToEventStream(rClient, conf)
+		err := rancherevents.ConnectToEventStream(rClient, kClient, conf)
 		log.Errorf("Rancher stream listener exited with error: %s", err)
 		rc <- err
 	}(resultChan)
@@ -99,8 +99,14 @@ func launch(c *cli.Context) {
 	}(resultChan)
 
 	go func(rc chan error) {
-		err := hostlabels.StartHostLabelSync(c.Int("host-labels-update-interval"), kClient)
+		err := hostwatch.StartHostLabelSync(c.Int("host-labels-update-interval"), kClient)
 		log.Errorf("Rancher hostLabel sync service exited with error: %s", err)
+		rc <- err
+	}(resultChan)
+
+	go func(rc chan error) {
+		err := hostwatch.StartHostStatusSync(5, kClient)
+		log.Errorf("Rancher hostStatus sync service exited with error: %s", err)
 		rc <- err
 	}(resultChan)
 
